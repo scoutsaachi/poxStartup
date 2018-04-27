@@ -1,0 +1,29 @@
+INFO:core:POX 0.2.0 (carp) is up.
+INFO:openflow.of_01:[00-00-00-00-00-03 1] connected
+INFO:openflow.of_01:[00-00-00-00-00-04 2] connected
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
+INFO:jelly_controller:packet in
