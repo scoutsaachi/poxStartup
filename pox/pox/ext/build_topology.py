@@ -1,5 +1,7 @@
 import os
 import sys
+import networkx
+import pdb
 from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.node import CPULimitedHost
@@ -12,6 +14,7 @@ sys.path.append("../../")
 from pox.ext.jelly_pox import JELLYPOX
 from subprocess import Popen
 from time import sleep, time
+import YenKSP.algorithms
 
 class JellyFishTop(Topo):
     ''' TODO, build your topology here'''
@@ -35,9 +38,12 @@ def experiment(net):
         net.stop()
 
 def main():
-	topo = JellyFishTop()
-	net = Mininet(topo=topo, host=CPULimitedHost, link = TCLink, controller=JELLYPOX)
-	experiment(net)
+	#topo = JellyFishTop()
+	#net = Mininet(topo=topo, host=CPULimitedHost, link = TCLink, controller=JELLYPOX)
+	#experiment(net)
+	d = 12
+	n = 686
+	rrg = networkx.random_regular_graph(d, n)
 
 if __name__ == "__main__":
 	main()
