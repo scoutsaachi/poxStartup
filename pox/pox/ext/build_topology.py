@@ -9,11 +9,13 @@ import matplotlib.pyplot as plt
 from mininet.topo import Topo
 from mininet.net import Mininet
 from mininet.node import CPULimitedHost
+from mininet.util import dumpNodeConnections
 from mininet.link import TCLink
 from mininet.node import OVSController
 from mininet.node import Controller
 from mininet.node import RemoteController
 from mininet.cli import CLI
+from mininet.log import setLogLevel
 sys.path.append("../../")
 from pox.ext.jelly_pox import JELLYPOX
 from subprocess import Popen
@@ -22,22 +24,34 @@ from YenKSP.algorithms import ksp_yen
 from YenKSP.graph import DiGraph
 
 class JellyFishTop(Topo):
-    def build(self):
+    # numSwitches
+    # numHosts
+    def build(self, n, adjlist_file):
+	switches = []
+	hosts = []
+	for i in range(n):
+	    hosts.append(self.addHost('h%s' % (i)))
+	    switches.append(self.addSwitch('s%s' % (i)))
+	    self.addLink(hosts[i], switches[i])
 
-            leftHost = self.addHost( 'h1' )
-            rightHost = self.addHost( 'h2' )
-            leftSwitch = self.addSwitch( 's3' )
-            rightSwitch = self.addSwitch( 's4' )
+        with open(adjlist_file) as f:
+	    for line in f:
+		if line.startswith("#"):
+		    continue
+		tokens = line.split()
+		source_node = tokens[0]
+		for dest_node in tokens[1:]:
+		    self.addLink(switches[int(source_node)], switches[int(dest_node)])
 
-            # Add links
-            self.addLink( leftHost, leftSwitch )
-            self.addLink( leftSwitch, rightSwitch )
-            self.addLink( rightSwitch, rightHost )
-
-
-def experiment(net):
+def simpleTest():
+	topo = JellyFishTop(n=10, adjlist_file="rrg_small_3_10")
+	net = Mininet(topo=topo, host=CPULimitedHost, link = TCLink, controller=JELLYPOX)
         net.start()
         sleep(3)
+	print "Dumping host connections"
+	dumpNodeConnections(net.hosts)
+	dumpNodeConnections(net.switches)
+	print "Testing network connectivity"
         net.pingAll()
         net.stop()
 
@@ -120,20 +134,24 @@ def assemble_histogram(counts):
 	plt.savefig("plot.png")
 	    
 
+
 def main():
+	
 	#topo = JellyFishTop()
 	#net = Mininet(topo=topo, host=CPULimitedHost, link = TCLink, controller=JELLYPOX)
 	#experiment(net)
-	d = 12
-	n = 50
-	rrg = networkx.random_regular_graph(d, n)
-	file_name = "rrg_large_" + str(d) + "_" + str(n)
+	#d = 12
+	#nswitches = 50
+	#rrg = networkx.random_regular_graph(d, n)
+	#file_name = "rrg_large_" + str(d) + "_" + str(n)
 
-	networkx.write_adjlist(rrg, file_name)
- 	digraph = load_random_graph(file_name, n)
-	shortest_path_counts = count_shortest_paths(digraph, n)
-	assemble_histogram(shortest_path_counts)
-	
+	#networkx.write_adjlist(rrg, file_name)
+ 	#digraph = load_random_graph(file_name, n)
+	#shortest_path_counts = count_shortest_paths(digraph, n)
+	#assemble_histogram(shortest_path_counts)
+	#
+	setLogLevel("info")
+	simpleTest()
 
 if __name__ == "__main__":
 	main()
