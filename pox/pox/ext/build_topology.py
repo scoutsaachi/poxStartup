@@ -140,18 +140,18 @@ def main():
 	#topo = JellyFishTop()
 	#net = Mininet(topo=topo, host=CPULimitedHost, link = TCLink, controller=JELLYPOX)
 	#experiment(net)
-	#d = 12
-	#nswitches = 50
-	#rrg = networkx.random_regular_graph(d, n)
-	#file_name = "rrg_large_" + str(d) + "_" + str(n)
+	d = 14
+	n = 245
+	rrg = networkx.random_regular_graph(d, n)
+	file_name = "rrg_large_" + str(d) + "_" + str(n)
 
-	#networkx.write_adjlist(rrg, file_name)
- 	#digraph = load_random_graph(file_name, n)
-	#shortest_path_counts = count_shortest_paths(digraph, n)
-	#assemble_histogram(shortest_path_counts)
-	#
-	setLogLevel("info")
-	simpleTest()
+	networkx.write_adjlist(rrg, file_name)
+ 	digraph = load_random_graph(file_name, n)
+	shortest_path_counts = count_shortest_paths(digraph, n)
+	assemble_histogram(shortest_path_counts)
+	
+#	setLogLevel("info")
+#	simpleTest()
 
 if __name__ == "__main__":
 	main()
