@@ -145,9 +145,12 @@ def main():
 	rrg = networkx.random_regular_graph(d, n)
 	file_name = "rrg_large_" + str(d) + "_" + str(n)
 
-	networkx.write_adjlist(rrg, file_name)
+	#networkx.write_adjlist(rrg, file_name)
+	print "Loading random graph into digraph"
  	digraph = load_random_graph(file_name, n)
+	print "Running KSP"
 	shortest_path_counts = count_shortest_paths(digraph, n)
+	print "Making the plot"
 	assemble_histogram(shortest_path_counts)
 	
 #	setLogLevel("info")
