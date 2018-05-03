@@ -166,6 +166,7 @@ def get_ksp_counts(all_ksp):
                         counts[rev_link] = 0
                     counts[link] += 1
                     prev_node = node
+	pdb.set_trace()
         return counts
 
 def assemble_histogram(ecmp_path_counts, ksp_counts, file_name):
@@ -173,6 +174,8 @@ def assemble_histogram(ecmp_path_counts, ksp_counts, file_name):
 	ecmp_8_distinct_paths_counts = []
 	ecmp_64_distinct_paths_counts = []
 	
+
+	pdb.set_trace()
 
 	for _, value in sorted(ksp_counts.iteritems(), key=lambda (k,v): (v,k)):
 	    ksp_distinct_paths_counts.append(value)
@@ -188,15 +191,15 @@ def assemble_histogram(ecmp_path_counts, ksp_counts, file_name):
 	fig = plt.figure()
 	ax1 = fig.add_subplot(111)
 
-	ax1.scatter(x, ksp_distinct_paths_counts, c='b', marker='s', label="8-KSP")
-	ax1.scatter(x, ecmp_8_distinct_paths_counts, c='r', marker='o', label="8-ECMP")
-	ax1.scatter(x, ecmp_64_distinct_paths_counts, c='g', marker='x', label="64-ECMP")
+	ax1.plot(x, ksp_distinct_paths_counts, '.b-', label="8-KSP")
+	ax1.plot(x, ecmp_8_distinct_paths_counts, '.g-', label="8-ECMP")
+	ax1.plot(x, ecmp_64_distinct_paths_counts, '.r-', label="64-ECMP")
 	plt.legend(loc="upper left");
 	plt.savefig("%s_plot.png" % file_name)
 	    
 def save_obj(obj, name):
     with open('pickle_obj/'+ name + '.pkl', 'wb') as f:
-        pickle.dump(obj, f, 0)
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 def load_obj(name ):
     with open('pickle_obj/' + name + '.pkl', 'rb') as f:
@@ -223,18 +226,22 @@ def main():
 	
 #	setLogLevel("info")
 #	simpleTest()
-	reuse_old_result = True
+	n = 30
+	d = 12
+	reuse_old_result = False
 	ecmp_paths = {}
 	all_ksp = {}
-	file_name = "rrg_small_3_10"
+	file_name = "rrg_%s_%s" % (d, n)
 	if not reuse_old_result:
+		graph = networkx.random_regular_graph(d, n)
+		networkx.write_adjlist(graph, file_name)
 		graph = networkx.read_adjlist(file_name)
+
 		print "ECMP paths"
-		ecmp_paths = compute_ecmp_paths(graph, 10)
-		pdb.set_trace()	
+		ecmp_paths = compute_ecmp_paths(graph, n)
 		save_obj(ecmp_paths, "ecmp_paths_%s" % (file_name))
 		print "K shortest paths"
-		all_ksp = compute_k_shortest_paths(graph, 10)
+		all_ksp = compute_k_shortest_paths(graph, n)
 		save_obj(all_ksp, "ksp_%s" % (file_name))
 	else:
 		ecmp_paths = load_obj("ecmp_paths_%s" % (file_name))
