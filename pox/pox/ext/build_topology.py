@@ -208,17 +208,19 @@ def assemble_histogram(path_counts, file_name):
 	for _, value in sorted(path_counts.iteritems(), key=lambda (k,v): (v["64-ecmp"],k)):
 	    ecmp_64_distinct_paths_counts.append(value["64-ecmp"])
 
-	print ksp_distinct_paths_counts
-	print ecmp_8_distinct_paths_counts
-	print ecmp_64_distinct_paths_counts
+#	print ksp_distinct_paths_counts
+#	print ecmp_8_distinct_paths_counts
+#	print ecmp_64_distinct_paths_counts
 	x = range(len(ksp_distinct_paths_counts))
 	fig = plt.figure()
 	ax1 = fig.add_subplot(111)
 
-	ax1.plot(x, ksp_distinct_paths_counts, '.b-', label="8-KSP")
-	ax1.plot(x, ecmp_8_distinct_paths_counts, '.g-', label="8-ECMP")
-	ax1.plot(x, ecmp_64_distinct_paths_counts, '.r-', label="64-ECMP")
+	ax1.plot(x, ksp_distinct_paths_counts, '.b-', label="8 Shortest Paths")
+	ax1.plot(x, ecmp_64_distinct_paths_counts, '.r-', label="64-way ECMP")
+	ax1.plot(x, ecmp_8_distinct_paths_counts, '.g-', label="8-way ECMP")
 	plt.legend(loc="upper left");
+	plt.xlabel("Rank of Link")
+	plt.ylabel("# of Distinct Paths Link is on")
 	plt.savefig("%s_plot.png" % file_name)
 	    
 def save_obj(obj, name):
