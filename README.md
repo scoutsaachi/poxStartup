@@ -1,5 +1,7 @@
 # Reproducing our results
 
+Tommy and Austin CS 244
+
 This is a starter for using POX and mininet
 
 Build your topology and run via pox/pox/ext/build_topology.py
