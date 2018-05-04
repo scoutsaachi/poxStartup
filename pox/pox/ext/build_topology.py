@@ -129,13 +129,16 @@ def compute_k_shortest_paths(networkx_graph, n, k=8):
 def get_path_counts(ecmp_paths, all_ksp, traffic_matrix, all_links):
 	counts = {}
 	# initialize counts for all links
-	n = len(traffic_matrix)
 	for link in all_links:
 	    a, b = link
 	    counts[(str(a),str(b))] = {"8-ksp":0, "8-ecmp": 0, "64-ecmp": 0} 
 	    counts[(str(b),str(a))] = {"8-ksp":0, "8-ecmp": 0, "64-ecmp": 0} 
-	for start_node in range(len(traffic_matrix)):
-		dest_node = traffic_matrix[start_node]
+	for start_host in range(len(traffic_matrix)):
+		dest_host = traffic_matrix[start_host]
+		start_node = start_host/3
+		dest_node = dest_host/3
+		if start_node == dest_node:
+		    continue
 		# swap them so that start_node < dest_node
 		if start_node > dest_node:
 			start_node, dest_node = dest_node, start_node
@@ -155,7 +158,6 @@ def get_path_counts(ecmp_paths, all_ksp, traffic_matrix, all_links):
 			    counts[link]["64-ecmp"] += 1
 			    prev_node = node
 
-		pdb.set_trace()
 		ksp = all_ksp[(str(start_node), str(dest_node))]
 		for path in ksp:
 		    prev_node = None
@@ -263,6 +265,7 @@ def main():
 #	setLogLevel("info")
 #	simpleTest()
 	n = 245
+	numHosts = 3*n
 	d = 14
 	reuse_old_result = True
 	ecmp_paths = {}
@@ -285,7 +288,8 @@ def main():
 		ecmp_paths = load_obj("ecmp_paths_%s" % (file_name))
 		all_ksp = load_obj("ksp_%s" % (file_name))
 	print "Assembling counts from paths"
-	derangement = random_derangement(n)
+
+	derangement = random_derangement(numHosts)
 	all_links = graph.edges()
 	path_counts = get_path_counts(ecmp_paths, all_ksp, derangement, all_links)
 	print "Making the plot"
