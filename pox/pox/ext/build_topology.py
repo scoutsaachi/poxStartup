@@ -219,8 +219,8 @@ def assemble_histogram(path_counts, file_name):
 	ax1.plot(x, ecmp_64_distinct_paths_counts, '.r-', label="64-way ECMP")
 	ax1.plot(x, ecmp_8_distinct_paths_counts, '.g-', label="8-way ECMP")
 	plt.legend(loc="upper left");
-	plt.xlabel("Rank of Link")
-	plt.ylabel("# of Distinct Paths Link is on")
+	ax1.set_xlabel("Rank of Link")
+	ax1.set_ylabel("# of Distinct Paths Link is on")
 	plt.savefig("%s_plot.png" % file_name)
 	    
 def save_obj(obj, name):
