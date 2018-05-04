@@ -3,6 +3,7 @@ import sys
 import networkx
 import pdb
 import matplotlib as mpl
+import random
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import pickle
@@ -125,63 +126,83 @@ def compute_k_shortest_paths(networkx_graph, n, k=8):
 #	return counts
 #	
 #
-def get_ecmp_path_counts(ecmp_paths):
+def get_path_counts(ecmp_paths, all_ksp, traffic_matrix, all_links):
 	counts = {}
-	for _, value in ecmp_paths.iteritems():
-	    if len(value) > 64:
-		value = value[:64]
-	    for i in range(len(value)):
-		path = value[i]
-		prev_node = None
-		for node in path:
-		    if not prev_node:
+	# initialize counts for all links
+	n = len(traffic_matrix)
+	for link in all_links:
+	    a, b = link
+	    counts[(str(a),str(b))] = {"8-ksp":0, "8-ecmp": 0, "64-ecmp": 0} 
+	    counts[(str(b),str(a))] = {"8-ksp":0, "8-ecmp": 0, "64-ecmp": 0} 
+	for start_node in range(len(traffic_matrix)):
+		dest_node = traffic_matrix[start_node]
+		# swap them so that start_node < dest_node
+		if start_node > dest_node:
+			start_node, dest_node = dest_node, start_node
+		paths = ecmp_paths[(str(start_node), str(dest_node))]
+		if len(paths) > 64:
+		    paths = paths[:64]
+		for i in range(len(paths)):
+			path = paths[i]
+			prev_node = None
+			for node in path:
+			    if not prev_node:
+				prev_node = node
+				continue
+			    link = (str(prev_node), str(node))
+			    if i < 8:
+				counts[link]["8-ecmp"] += 1
+			    counts[link]["64-ecmp"] += 1
+			    prev_node = node
+
+		ksp = all_ksp[(str(start_node), str(dest_node))]
+		for path in ksp:
+		    prev_node = None
+		    for node in path:
+			if not prev_node:
+                            prev_node = node
+                            continue
+                        link = (str(prev_node), str(node))
+			counts[link]["8-ksp"] += 1
 			prev_node = node
-			continue
-		    link = (str(prev_node), str(node))
-		    rev_link = (str(node), str(prev_node))
-		    if link not in counts:
-			counts[link] = {"8-ecmp": 0, "64-ecmp": 0}
-		    if rev_link not in counts:
-			counts[rev_link] = {"8-ecmp": 0, "64-ecmp": 0}
-		    if i < 8:
-			counts[link]["8-ecmp"] += 1
-		    counts[link]["64-ecmp"] += 1
-		    prev_node = node
+	
 	return counts
 
-def get_ksp_counts(all_ksp):
-	counts = {}
-        for _, value in all_ksp.iteritems():
-            for path in value:
-                prev_node = None
-                for node in path:
-                    if not prev_node:
-                        prev_node = node
-                        continue
-                    link = (str(prev_node), str(node))
-                    rev_link = (str(node), str(prev_node))
-                    if link not in counts:
-                        counts[link] = 0
-                    if rev_link not in counts:
-                        counts[rev_link] = 0
-                    counts[link] += 1
-                    prev_node = node
-	pdb.set_trace()
-        return counts
-
-def assemble_histogram(ecmp_path_counts, ksp_counts, file_name):
+#def get_ksp_counts(all_ksp, traffic_matrix):
+#	counts = {}
+#	n = len(traffic_matrix)
+#	    for a in range(n):
+#	        for b in range(a+1, n):
+#		    counts[(str(a),str(b))] = 0
+#		    counts[(str(b),str(a))] = 0
+#        for _, value in all_ksp.iteritems():
+#            for path in value:
+#                prev_node = None
+#                for node in path:
+#                    if not prev_node:
+#                        prev_node = node
+#                        continue
+#                    link = (str(prev_node), str(node))
+#                    rev_link = (str(node), str(prev_node))
+#                    if link not in counts:
+#                        counts[link] = 0
+#                    if rev_link not in counts:
+#                        counts[rev_link] = 0
+#                    counts[link] += 1
+#                    prev_node = node
+#        return counts
+#
+def assemble_histogram(path_counts, file_name):
 	ksp_distinct_paths_counts = []
 	ecmp_8_distinct_paths_counts = []
 	ecmp_64_distinct_paths_counts = []
 	
 
-	pdb.set_trace()
-
-	for _, value in sorted(ksp_counts.iteritems(), key=lambda (k,v): (v,k)):
-	    ksp_distinct_paths_counts.append(value)
-	for _, value in sorted(ecmp_path_counts.iteritems(), key=lambda (k,v): (v["8-ecmp"],k)):
+	for _, value in sorted(path_counts.iteritems(), key=lambda (k,v): (v["8-ksp"],k)):
+	    ksp_distinct_paths_counts.append(value["8-ksp"])
+	for _, value in sorted(path_counts.iteritems(), key=lambda (k,v): (v["8-ecmp"],k)):
 	    ecmp_8_distinct_paths_counts.append(value["8-ecmp"])
-	for _, value in sorted(ecmp_path_counts.iteritems(), key=lambda (k,v): (v["64-ecmp"],k)):
+	for _, value in sorted(path_counts.iteritems(), key=lambda (k,v): (v["64-ecmp"],k)):
 	    ecmp_64_distinct_paths_counts.append(value["64-ecmp"])
 
 	print ksp_distinct_paths_counts
@@ -205,6 +226,20 @@ def load_obj(name ):
     with open('pickle_obj/' + name + '.pkl', 'rb') as f:
         return pickle.load(f)
 
+# Code adapted from:
+# https://stackoverflow.com/questions/25200220/generate-a-random-derangement-of-a-list
+def random_derangement(n):
+    while True:
+        v = range(n)
+        for j in range(n - 1, -1, -1):
+            p = random.randint(0, j)
+            if v[p] == j:
+                break
+            else:
+                v[j], v[p] = v[p], v[j]
+        else:
+            if v[0] != 0:
+                return tuple(v)
 
 def main():
 	
@@ -226,8 +261,8 @@ def main():
 	
 #	setLogLevel("info")
 #	simpleTest()
-	n = 30
-	d = 12
+	n = 245
+	d = 14
 	reuse_old_result = False
 	ecmp_paths = {}
 	all_ksp = {}
@@ -244,13 +279,16 @@ def main():
 		all_ksp = compute_k_shortest_paths(graph, n)
 		save_obj(all_ksp, "ksp_%s" % (file_name))
 	else:
+		graph = networkx.read_adjlist(file_name)
+
 		ecmp_paths = load_obj("ecmp_paths_%s" % (file_name))
 		all_ksp = load_obj("ksp_%s" % (file_name))
 	print "Assembling counts from paths"
-	ecmp_path_counts = get_ecmp_path_counts(ecmp_paths)
-	ksp_counts = get_ksp_counts(all_ksp)
+	derangement = random_derangement(n)
+	all_links = graph.edges()
+	path_counts = get_path_counts(ecmp_paths, all_ksp, derangement, all_links)
 	print "Making the plot"
-	assemble_histogram(ecmp_path_counts=ecmp_path_counts, ksp_counts=ksp_counts, file_name=file_name)
+	assemble_histogram(path_counts=path_counts, file_name=file_name)
 	
 if __name__ == "__main__":
 	main()
