@@ -22,8 +22,6 @@ sys.path.append("../../")
 from pox.ext.jelly_pox import JELLYPOX
 from subprocess import Popen
 from time import sleep, time
-from YenKSP.algorithms import ksp_yen
-from YenKSP.graph import DiGraph
 
 class JellyFishTop(Topo):
     # numSwitches
@@ -57,23 +55,7 @@ def simpleTest():
         net.pingAll()
         net.stop()
 
-#def load_random_graph_into_digraph(file, n):
-#	graph = DiGraph()
-#	for i in range(n):
-#	    graph.add_node(str(i))
-#	with open(file) as f:
-#	    for line in f:
-#		if line.startswith("#"):
-#		    continue
-#		tokens = line.split()
-#		source_node = tokens[0]
-#		if int(source_node) >= n:
-#		    raise "Source node greater than max"
-#		for dest_node in tokens[1:]:
-#		    graph.add_edge(str(source_node), str(dest_node), 1)
-#		    graph.add_edge(str(dest_node), str(source_node), 1)
-#	return graph
-#
+
 def compute_ecmp_paths(networkx_graph, n):
 	ecmp_paths = {}
 	for a in range(n):
@@ -91,41 +73,7 @@ def compute_k_shortest_paths(networkx_graph, n, k=8):
 		all_ksp[(str(a), str(b))] = ksp
 	return all_ksp
 
-#def compute_k_shortest_paths(digraph, n, k=8):
-#	counts = {}
-#	for a in range(n):
-#	    for b in range(a+1, n):
-#		ksp = ksp_yen(digraph, str(a), str(b), k)
-#		minCost = ksp[0]['cost']
-#		for i in range(len(ksp)):
-#		    if i >= 8 and ksp[i]['cost'] > minCost:
-#			break
-#		    else:
-#			prev_node  = None
-#			for node in ksp[i]['path']:
-#			    if not prev_node:
-#				prev_node = node
-#				continue
-#			    else:
-#				link = (str(prev_node), str(node))
-#				rev_link = (str(node), str(prev_node))
-#				if link not in counts:
-#			            counts[link] = {"8-ksp": 0, "8-ecmp": 0, "64-ecmp": 0}
-#				if rev_link not in counts:
-#			            counts[rev_link] = {"8-ksp": 0, "8-ecmp": 0, "64-ecmp": 0}
-#				if ksp[i]['cost'] == minCost and i < 8:
-#				    counts[link]["8-ecmp"] += 1
-#				    counts[rev_link]["8-ecmp"] += 1
-#				if ksp[i]['cost'] == minCost:
-#				    counts[link]["64-ecmp"] += 1
-#				    counts[rev_link]["64-ecmp"] += 1
-#				if i < 8:
-#				    counts[link]["8-ksp"] += 1
-#				    counts[rev_link]["8-ksp"] += 1
-#				prev_node = node
-#	return counts
-#	
-#
+
 def get_path_counts(ecmp_paths, all_ksp, traffic_matrix, all_links):
 	counts = {}
 	# initialize counts for all links
@@ -171,30 +119,7 @@ def get_path_counts(ecmp_paths, all_ksp, traffic_matrix, all_links):
 	
 	return counts
 
-#def get_ksp_counts(all_ksp, traffic_matrix):
-#	counts = {}
-#	n = len(traffic_matrix)
-#	    for a in range(n):
-#	        for b in range(a+1, n):
-#		    counts[(str(a),str(b))] = 0
-#		    counts[(str(b),str(a))] = 0
-#        for _, value in all_ksp.iteritems():
-#            for path in value:
-#                prev_node = None
-#                for node in path:
-#                    if not prev_node:
-#                        prev_node = node
-#                        continue
-#                    link = (str(prev_node), str(node))
-#                    rev_link = (str(node), str(prev_node))
-#                    if link not in counts:
-#                        counts[link] = 0
-#                    if rev_link not in counts:
-#                        counts[rev_link] = 0
-#                    counts[link] += 1
-#                    prev_node = node
-#        return counts
-#
+
 def assemble_histogram(path_counts, file_name):
 	ksp_distinct_paths_counts = []
 	ecmp_8_distinct_paths_counts = []
@@ -251,19 +176,7 @@ def main():
 	#topo = JellyFishTop()
 	#net = Mininet(topo=topo, host=CPULimitedHost, link = TCLink, controller=JELLYPOX)
 	#experiment(net)
-	#d = 14
-	#n = 245
-	#rrg = networkx.random_regular_graph(d, n)
-	#file_name = "rrg_large_" + str(d) + "_" + str(n)
 
-	#networkx.write_adjlist(rrg, file_name)
-	#print "Loading random graph into digraph"
- 	#digraph = load_random_graph_into_digraph(file_name, n)
-	#print "Running KSP"
-	#shortest_path_counts = count_shortest_paths(digraph, n)
-	#print "Making the plot"
-	#assemble_histogram(shortest_path_counts)
-	
 #	setLogLevel("info")
 #	simpleTest()
 	n = 245
