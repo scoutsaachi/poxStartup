@@ -155,6 +155,7 @@ def get_path_counts(ecmp_paths, all_ksp, traffic_matrix, all_links):
 			    counts[link]["64-ecmp"] += 1
 			    prev_node = node
 
+		pdb.set_trace()
 		ksp = all_ksp[(str(start_node), str(dest_node))]
 		for path in ksp:
 		    prev_node = None
@@ -263,7 +264,7 @@ def main():
 #	simpleTest()
 	n = 245
 	d = 14
-	reuse_old_result = False
+	reuse_old_result = True
 	ecmp_paths = {}
 	all_ksp = {}
 	file_name = "rrg_%s_%s" % (d, n)
